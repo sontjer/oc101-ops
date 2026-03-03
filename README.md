@@ -1,6 +1,6 @@
 # openclaw-oc101-ops
 
-Operational toolkit for managing OpenClaw over SSH.
+Operational toolkit for coding agent managing OpenClaw over SSH.
 
 ## Documentation
 
