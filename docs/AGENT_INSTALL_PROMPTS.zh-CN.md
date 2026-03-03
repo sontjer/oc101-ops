@@ -25,13 +25,15 @@
 - `<AUTO_RESTART_ENABLED>`：`true` 或 `false`
 
 执行闸门（必须）：
-- 在执行任何安装/部署动作前，代理必须先与用户确认以下 5 个环境变量。
+- 在执行任何安装/部署动作前，代理必须先与用户确认以下环境变量。
 - 任一缺失时，先向用户提问补齐，再继续：
   - `OPENCLAW101_HOST`（必填）
   - `OPENCLAW101_USER`（默认 `root`）
   - `OPENCLAW101_IDENTITY`（可选；显式私钥路径，优先级最高）
   - `OPENCLAW101_DEFAULT_IDENTITY`（回退私钥路径；默认 `~/.ssh/oc101_ed25519`）
   - `OPENCLAW101_PASS`（可选；需安装 `sshpass`）
+  - `OC101_WD_TELEGRAM_BOT_TOKEN`（启用告警时必填）
+  - `OC101_WD_TELEGRAM_CHAT_ID`（启用告警时必填）
 
 ## 1) Codex 提示词模板
 

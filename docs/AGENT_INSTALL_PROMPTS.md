@@ -25,13 +25,15 @@ How to use:
 - `<AUTO_RESTART_ENABLED>`: `true` or `false`
 
 Execution gate (required):
-- Before running any install/deploy step, the agent must validate these 5 env vars with the user.
+- Before running any install/deploy step, the agent must validate these env vars with the user.
 - If any is missing, ask the user first and do not proceed:
   - `OPENCLAW101_HOST` (required)
   - `OPENCLAW101_USER` (default `root`)
   - `OPENCLAW101_IDENTITY` (optional; explicit key path, highest priority)
   - `OPENCLAW101_DEFAULT_IDENTITY` (fallback key path; default `~/.ssh/oc101_ed25519`)
   - `OPENCLAW101_PASS` (optional; requires `sshpass`)
+  - `OC101_WD_TELEGRAM_BOT_TOKEN` (required for alerting)
+  - `OC101_WD_TELEGRAM_CHAT_ID` (required for alerting)
 
 ## 1) Codex Prompt Template
 
