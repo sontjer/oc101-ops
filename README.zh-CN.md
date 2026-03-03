@@ -4,9 +4,11 @@
 
 ## 文档导航
 
-- 英文说明： [README.md](README.md)
 - 代理安装提示词（英文版）： [docs/AGENT_INSTALL_PROMPTS.md](docs/AGENT_INSTALL_PROMPTS.md)
+- 中文说明： [README.zh-CN.md](README.zh-CN.md)
 - 代理安装提示词（中文版）： [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_INSTALL_PROMPTS.zh-CN.md)
+
+请发给你的 Coding Agent，让它给你安装。
 
 本仓库整理了 `oc101` 包装脚本和 watchdog 监控脚本，用于 OpenClaw 的生产化运维。
 
