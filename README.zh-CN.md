@@ -109,8 +109,8 @@ scripts/oc101 doctor
 
 - `OPENCLAW101_HOST`（必填）
 - `OPENCLAW101_USER`（默认 `root`）
-- `OPENCLAW101_IDENTITY`（可选，等价于 `ssh -i`）
-- `OPENCLAW101_DEFAULT_IDENTITY`（默认 `~/.ssh/oc101_ed25519`）
+- `OPENCLAW101_IDENTITY`（可选；显式指定私钥路径，等价于 `ssh -i`，优先级最高）
+- `OPENCLAW101_DEFAULT_IDENTITY`（回退私钥路径；仅当未设置 `OPENCLAW101_IDENTITY` 时生效，默认 `~/.ssh/oc101_ed25519`）
 - `OPENCLAW101_PASS`（可选，需安装 `sshpass`）
 
 ## Watchdog 说明

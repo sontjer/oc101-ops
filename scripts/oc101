@@ -248,8 +248,8 @@ env overrides:
   OPENCLAW101_HOST (required; no default)
   OPENCLAW101_USER (default root)
   OPENCLAW101_PASS (optional; uses sshpass)
-  OPENCLAW101_IDENTITY (optional; ssh -i <path>)
-  OPENCLAW101_DEFAULT_IDENTITY (default ~/.ssh/oc101_ed25519)
+  OPENCLAW101_IDENTITY (optional; explicit ssh -i <path>, highest priority)
+  OPENCLAW101_DEFAULT_IDENTITY (fallback key path when OPENCLAW101_IDENTITY is unset; default ~/.ssh/oc101_ed25519)
   OPENCLAW101_UPGRADE_CONFIRM=YES (required when running oc101 upgrade --apply)
 USAGE
 }

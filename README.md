@@ -111,8 +111,8 @@ Channels and models:
 
 - `OPENCLAW101_HOST` (required)
 - `OPENCLAW101_USER` (default `root`)
-- `OPENCLAW101_IDENTITY` (optional `ssh -i`)
-- `OPENCLAW101_DEFAULT_IDENTITY` (default `~/.ssh/oc101_ed25519`)
+- `OPENCLAW101_IDENTITY` (optional; explicit key path via `ssh -i`, takes precedence)
+- `OPENCLAW101_DEFAULT_IDENTITY` (fallback key path used only when `OPENCLAW101_IDENTITY` is unset; default `~/.ssh/oc101_ed25519`)
 - `OPENCLAW101_PASS` (optional, requires `sshpass`)
 
 ## Watchdog Notes
