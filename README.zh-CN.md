@@ -1,8 +1,12 @@
 # openclaw-oc101-ops（中文说明）
 
 一个以官方 CLI 为核心的 OpenClaw SSH 运维工具包。
-Agent 安装提示词模板（英文）：[docs/AGENT_INSTALL_PROMPTS.md](docs/AGENT_INSTALL_PROMPTS.md)
-Agent 安装提示词模板： [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_INSTALL_PROMPTS.zh-CN.md)
+
+## 文档导航
+
+- 英文说明： [README.md](README.md)
+- 代理安装提示词（英文版）： [docs/AGENT_INSTALL_PROMPTS.md](docs/AGENT_INSTALL_PROMPTS.md)
+- 代理安装提示词（中文版）： [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_INSTALL_PROMPTS.zh-CN.md)
 
 本仓库整理了 `oc101` 包装脚本和 watchdog 监控脚本，用于 OpenClaw 的生产化运维。
 

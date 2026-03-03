@@ -2,9 +2,11 @@
 
 Operational toolkit for managing OpenClaw over SSH.
 
-中文说明: [README.zh-CN.md](README.zh-CN.md)
-Agent prompts (en): [docs/AGENT_INSTALL_PROMPTS.md](docs/AGENT_INSTALL_PROMPTS.md)
-Agent prompts (zh-CN): [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_INSTALL_PROMPTS.zh-CN.md)
+## Documentation
+
+- Chinese README: [README.zh-CN.md](README.zh-CN.md)
+- Agent prompts (English): [docs/AGENT_INSTALL_PROMPTS.md](docs/AGENT_INSTALL_PROMPTS.md)
+- Agent prompts (Chinese): [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_INSTALL_PROMPTS.zh-CN.md)
 
 This repository packages the `oc101` wrapper and watchdog scripts for production-oriented OpenClaw operations.
 
