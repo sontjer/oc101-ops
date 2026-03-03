@@ -24,6 +24,7 @@ It also performs state analysis, root-cause diagnosis, remediation actions, and 
 - `scripts/oc101_watchdog_run.sh`: watchdog launcher that loads an env file.
 - `scripts/oc101_heartbeat_sender.sh`: heartbeat sender for OpenClaw host cron.
 - `scripts/oc101_watchdog_drill.sh`: timeout drill script with auto-restore.
+- `scripts/oc101_runtime_audit.sh`: one-shot runtime drift audit (repo vs skills vs remote host).
 - `examples/*.env.example`: sanitized configuration templates.
 
 ## 🎯 Design Principles
@@ -145,6 +146,25 @@ Channels and models:
 - If Gateway is unhealthy, Telegram receives an incident/SOS alert with health-check outputs.
 - Optional one-shot auto-restart is rate-limited by cooldown/failure counters.
 - Alerts are deduplicated by timeout window and send one recovery message after heartbeat resumes.
+
+## 🛡️ Anti-Regression (Heartbeat)
+
+- In heartbeat env files, use `export` for all `OC101_HB_*` variables.
+- In cron, always source env with auto-export:
+
+```bash
+*/15 * * * * set -a; . /root/.openclaw/ops/heartbeat_sender.env; set +a; /root/.openclaw/ops/heartbeat_sender.sh >> /root/.openclaw/ops/heartbeat_sender.log 2>&1
+```
+
+- Do not rely on `. env && script` unless you are certain every required key is exported.
+- Keep runtime copies in sync after repo updates:
+  - `scripts/oc101_heartbeat_sender.sh` -> `/root/.openclaw/ops/heartbeat_sender.sh`
+  - `examples/oc101_heartbeat_sender.env.example` -> your deployed env baseline
+- Run one-shot audit after changes:
+
+```bash
+scripts/oc101_runtime_audit.sh
+```
 
 ## 🔐 Security
 

@@ -11,6 +11,7 @@ CHANNEL="${OC101_HB_CHANNEL:-stable}"
 
 if [[ -z "$WEBHOOK_URL" || -z "$SHARED_SECRET" ]]; then
   echo "OC101_HB_WEBHOOK_URL and OC101_HB_SHARED_SECRET are required" >&2
+  echo "Hint: export OC101_HB_* in env file, or run cron with: set -a; . /path/to/env; set +a" >&2
   exit 2
 fi
 

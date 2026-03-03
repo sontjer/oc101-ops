@@ -24,6 +24,7 @@
 - `scripts/oc101_watchdog_run.sh`：加载 env 后启动 watchdog。
 - `scripts/oc101_heartbeat_sender.sh`：部署在 OpenClaw 侧的心跳发送脚本（配合 cron）。
 - `scripts/oc101_watchdog_drill.sh`：超时演练脚本（自动恢复演练前配置）。
+- `scripts/oc101_runtime_audit.sh`：一键检查 repo/skills/线上运行态是否漂移。
 - `examples/*.env.example`：脱敏后的配置模板。
 
 ## 🎯 设计原则
@@ -146,6 +147,25 @@ scripts/oc101 doctor
 - 若 Gateway 不健康，会通过 Telegram 发送 incident/求救告警并附带诊断结果摘要
 - 支持一次性自动重启（受冷却时间和失败次数限制）
 - 同一超时窗口仅发一次 incident；恢复后发送 recovered
+
+## 🛡️ 防回归策略（Heartbeat）
+
+- 心跳 env 文件中的 `OC101_HB_*` 变量统一使用 `export`。
+- cron 统一使用自动导出写法：
+
+```bash
+*/15 * * * * set -a; . /root/.openclaw/ops/heartbeat_sender.env; set +a; /root/.openclaw/ops/heartbeat_sender.sh >> /root/.openclaw/ops/heartbeat_sender.log 2>&1
+```
+
+- 不建议仅写 `. env && script`，除非确认必需变量都已 `export`。
+- 仓库更新后，要同步运行目录副本：
+  - `scripts/oc101_heartbeat_sender.sh` -> `/root/.openclaw/ops/heartbeat_sender.sh`
+  - `examples/oc101_heartbeat_sender.env.example` -> 线上 env 基线模板
+- 变更后建议跑一次巡检：
+
+```bash
+scripts/oc101_runtime_audit.sh
+```
 
 ## 🔐 安全建议
 
