@@ -6,7 +6,7 @@ Operational toolkit for managing OpenClaw over SSH.
 Agent prompts (en): [docs/AGENT_INSTALL_PROMPTS.md](docs/AGENT_INSTALL_PROMPTS.md)
 Agent prompts (zh-CN): [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_INSTALL_PROMPTS.zh-CN.md)
 
-This repository packages the `oc101` wrapper and watchdog scripts that were used to operate an OpenClaw host (`192.168.1.101`) in production-like workflows.
+This repository packages the `oc101` wrapper and watchdog scripts for production-oriented OpenClaw operations.
 
 ## Key Capability
 
@@ -37,7 +37,7 @@ When the OpenClaw Gateway crashes or loses heartbeat, watchdog sends Telegram SO
 chmod +x scripts/oc101 scripts/oc101_watchdog.py scripts/oc101_watchdog_run.sh scripts/oc101_heartbeat_sender.sh scripts/oc101_watchdog_drill.sh
 ```
 
-3. Configure SSH access for target host (default: `root@192.168.1.101`).
+3. Configure SSH access for your target host.
 4. Prepare watchdog env:
 
 ```bash
@@ -109,7 +109,7 @@ Channels and models:
 
 ## Environment Overrides (oc101)
 
-- `OPENCLAW101_HOST` (default `192.168.1.101`)
+- `OPENCLAW101_HOST` (required)
 - `OPENCLAW101_USER` (default `root`)
 - `OPENCLAW101_IDENTITY` (optional `ssh -i`)
 - `OPENCLAW101_DEFAULT_IDENTITY` (default `~/.ssh/oc101_ed25519`)

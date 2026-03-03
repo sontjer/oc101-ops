@@ -4,7 +4,7 @@
 Agent 安装提示词模板（英文）：[docs/AGENT_INSTALL_PROMPTS.md](docs/AGENT_INSTALL_PROMPTS.md)
 Agent 安装提示词模板： [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_INSTALL_PROMPTS.zh-CN.md)
 
-本仓库整理了 `oc101` 包装脚本和 watchdog 监控脚本，来源于对 OpenClaw 主机（默认示例 `192.168.1.101`）的实际运维流程。
+本仓库整理了 `oc101` 包装脚本和 watchdog 监控脚本，用于 OpenClaw 的生产化运维。
 
 ## 关键能力
 
@@ -35,7 +35,7 @@ Agent 安装提示词模板： [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_
 chmod +x scripts/oc101 scripts/oc101_watchdog.py scripts/oc101_watchdog_run.sh scripts/oc101_heartbeat_sender.sh scripts/oc101_watchdog_drill.sh
 ```
 
-3. 准备 SSH（默认目标 `root@192.168.1.101`）。
+3. 准备 SSH（目标主机自定义）。
 4. 复制 watchdog 配置模板：
 
 ```bash
@@ -107,7 +107,7 @@ scripts/oc101 doctor
 
 ## 环境变量覆盖（oc101）
 
-- `OPENCLAW101_HOST`（默认 `192.168.1.101`）
+- `OPENCLAW101_HOST`（必填）
 - `OPENCLAW101_USER`（默认 `root`）
 - `OPENCLAW101_IDENTITY`（可选，等价于 `ssh -i`）
 - `OPENCLAW101_DEFAULT_IDENTITY`（默认 `~/.ssh/oc101_ed25519`）

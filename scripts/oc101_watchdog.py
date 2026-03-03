@@ -71,7 +71,7 @@ def load_config() -> Config:
         auto_restart_enabled=env_bool("OC101_WD_AUTO_RESTART_ENABLED", True),
         gateway_recheck_delay_seconds=env_int("OC101_WD_GATEWAY_RECHECK_DELAY_SECONDS", 45),
         oc101_path=os.environ.get("OC101_WD_OC101_PATH", default_oc101),
-        monitored_host=os.environ.get("OC101_WD_MONITORED_HOST", "192.168.1.101"),
+        monitored_host=os.environ.get("OC101_WD_MONITORED_HOST", "openclaw-host"),
         monitored_service=os.environ.get("OC101_WD_MONITORED_SERVICE", "openclaw-gateway"),
         telegram_bot_token=os.environ.get("OC101_WD_TELEGRAM_BOT_TOKEN", ""),
         telegram_chat_id=os.environ.get("OC101_WD_TELEGRAM_CHAT_ID", ""),
