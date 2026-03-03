@@ -24,6 +24,15 @@ How to use:
 - `<TG_CHAT_ID>`: Telegram chat id for alerts
 - `<AUTO_RESTART_ENABLED>`: `true` or `false`
 
+Execution gate (required):
+- Before running any install/deploy step, the agent must validate these 5 env vars with the user.
+- If any is missing, ask the user first and do not proceed:
+  - `OPENCLAW101_HOST` (required)
+  - `OPENCLAW101_USER` (default `root`)
+  - `OPENCLAW101_IDENTITY` (optional; explicit key path, highest priority)
+  - `OPENCLAW101_DEFAULT_IDENTITY` (fallback key path; default `~/.ssh/oc101_ed25519`)
+  - `OPENCLAW101_PASS` (optional; requires `sshpass`)
+
 ## 1) Codex Prompt Template
 
 ```text
@@ -38,6 +47,7 @@ Goals:
 Constraints:
 - Use only scripts in this repo and official openclaw CLI
 - Do not print secrets in the final summary
+- Ask for missing required env vars before executing commands.
 - After any service-impacting change, run and report:
   1) scripts/oc101 status
   2) scripts/oc101 gateway-status

@@ -49,13 +49,18 @@ chmod +x scripts/oc101 scripts/oc101_watchdog.py scripts/oc101_watchdog_run.sh s
 ```
 
 3. Configure SSH access for your target host.
-4. Prepare watchdog env:
+4. Set required runtime env vars (at minimum):
+
+```bash
+export OPENCLAW101_HOST=<target-host>
+```
+5. Prepare watchdog env:
 
 ```bash
 cp examples/oc101_watchdog.env.example examples/oc101_watchdog.env
 ```
 
-5. Run health checks:
+6. Run health checks:
 
 ```bash
 scripts/oc101 status

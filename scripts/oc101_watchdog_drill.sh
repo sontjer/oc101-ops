@@ -7,6 +7,9 @@ REMOTE_ENV="${OC101_DRILL_REMOTE_ENV:-/root/.openclaw/ops/heartbeat_sender.env}"
 REMOTE_SENDER="${OC101_DRILL_REMOTE_SENDER:-/root/.openclaw/ops/heartbeat_sender.sh}"
 REMOTE_CRON_MATCH="${OC101_DRILL_REMOTE_CRON_MATCH:-/root/.openclaw/ops/heartbeat_sender.sh}"
 REMOTE_CRON_LINE=". ${REMOTE_ENV} && ${REMOTE_SENDER} >> /root/.openclaw/ops/heartbeat_sender.log 2>&1"
+REMOTE_HOST="${OPENCLAW101_HOST:-}"
+REMOTE_USER="${OPENCLAW101_USER:-root}"
+REMOTE_IDENTITY="${OPENCLAW101_IDENTITY:-${OPENCLAW101_DEFAULT_IDENTITY:-$HOME/.ssh/oc101_ed25519}}"
 
 TEST_STALE_SECONDS="${OC101_DRILL_TEST_STALE_SECONDS:-45}"
 TEST_CHECK_SECONDS="${OC101_DRILL_TEST_CHECK_SECONDS:-10}"
@@ -26,6 +29,20 @@ require systemctl
 
 [[ -f "$WD_ENV" ]] || { echo "watchdog env not found: $WD_ENV" >&2; exit 2; }
 [[ -f "$LOG_FILE" ]] || touch "$LOG_FILE"
+[[ -n "$REMOTE_HOST" ]] || { echo "OPENCLAW101_HOST is required" >&2; exit 2; }
+
+ssh_remote() {
+  local target="${REMOTE_USER}@${REMOTE_HOST}"
+  local -a opts=(
+    -o StrictHostKeyChecking=no
+    -o UserKnownHostsFile=/dev/null
+    -o ConnectTimeout=8
+  )
+  if [[ -n "${REMOTE_IDENTITY}" && -f "${REMOTE_IDENTITY}" ]]; then
+    opts+=(-i "${REMOTE_IDENTITY}" -o IdentitiesOnly=yes)
+  fi
+  ssh "${opts[@]}" "$target" "$@"
+}
 
 mark="DRILL_$(date +%s)"
 restore_done="0"
@@ -38,10 +55,10 @@ restore_all() {
   sed -i "s/^OC101_WD_STALE_AFTER_SECONDS=.*/OC101_WD_STALE_AFTER_SECONDS=${PROD_STALE_SECONDS}/" "$WD_ENV"
   sed -i "s/^OC101_WD_CHECK_INTERVAL_SECONDS=.*/OC101_WD_CHECK_INTERVAL_SECONDS=${PROD_CHECK_SECONDS}/" "$WD_ENV"
 
-  ssh openclaw-101 "set -euo pipefail; (crontab -l 2>/dev/null || true) | grep -Fv \"${REMOTE_CRON_MATCH}\" > /tmp/cron.new; printf '%s\\n' \"*/15 * * * * ${REMOTE_CRON_LINE}\" >> /tmp/cron.new; crontab /tmp/cron.new; rm -f /tmp/cron.new"
+  ssh_remote "set -euo pipefail; (crontab -l 2>/dev/null || true) | grep -Fv \"${REMOTE_CRON_MATCH}\" > /tmp/cron.new; printf '%s\\n' \"*/15 * * * * ${REMOTE_CRON_LINE}\" >> /tmp/cron.new; crontab /tmp/cron.new; rm -f /tmp/cron.new"
 
   systemctl restart oc101-watchdog.service
-  ssh openclaw-101 "set -a; source ${REMOTE_ENV}; set +a; ${REMOTE_SENDER}" >/dev/null 2>&1 || true
+  ssh_remote "set -a; source ${REMOTE_ENV}; set +a; ${REMOTE_SENDER}" >/dev/null 2>&1 || true
   restore_done="1"
   set -e
 }
@@ -49,14 +66,14 @@ restore_all() {
 trap restore_all EXIT
 
 echo "[drill] pause heartbeat cron"
-ssh openclaw-101 "set -euo pipefail; (crontab -l 2>/dev/null || true) | grep -Fv \"${REMOTE_CRON_MATCH}\" > /tmp/cron.new; crontab /tmp/cron.new; rm -f /tmp/cron.new"
+ssh_remote "set -euo pipefail; (crontab -l 2>/dev/null || true) | grep -Fv \"${REMOTE_CRON_MATCH}\" > /tmp/cron.new; crontab /tmp/cron.new; rm -f /tmp/cron.new"
 
 echo "[drill] set watchdog fast thresholds"
 sed -i "s/^OC101_WD_STALE_AFTER_SECONDS=.*/OC101_WD_STALE_AFTER_SECONDS=${TEST_STALE_SECONDS}/" "$WD_ENV"
 sed -i "s/^OC101_WD_CHECK_INTERVAL_SECONDS=.*/OC101_WD_CHECK_INTERVAL_SECONDS=${TEST_CHECK_SECONDS}/" "$WD_ENV"
 
 echo "[drill] unlock timeout window with one heartbeat"
-ssh openclaw-101 "set -a; source ${REMOTE_ENV}; set +a; ${REMOTE_SENDER}" >/dev/null
+ssh_remote "set -a; source ${REMOTE_ENV}; set +a; ${REMOTE_SENDER}" >/dev/null
 sleep 2
 
 echo "$mark" >> "$LOG_FILE"

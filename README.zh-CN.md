@@ -49,13 +49,19 @@ chmod +x scripts/oc101 scripts/oc101_watchdog.py scripts/oc101_watchdog_run.sh s
 ```
 
 3. 准备 SSH（目标主机自定义）。
-4. 复制 watchdog 配置模板：
+4. 设置运行时必填环境变量（至少）：
+
+```bash
+export OPENCLAW101_HOST=<target-host>
+```
+
+5. 复制 watchdog 配置模板：
 
 ```bash
 cp examples/oc101_watchdog.env.example examples/oc101_watchdog.env
 ```
 
-5. 执行基础健康检查：
+6. 执行基础健康检查：
 
 ```bash
 scripts/oc101 status
