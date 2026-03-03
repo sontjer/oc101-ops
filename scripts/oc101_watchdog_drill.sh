@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-WD_ENV="${OC101_WD_ENV:-$SCRIPT_DIR/../examples/oc101_watchdog.env.example}"
+WD_ENV="${OC101_WD_ENV:-$HOME/.codex/skills/openclaw-101/scripts/oc101_watchdog.env}"
 REMOTE_ENV="${OC101_DRILL_REMOTE_ENV:-/root/.openclaw/ops/heartbeat_sender.env}"
 REMOTE_SENDER="${OC101_DRILL_REMOTE_SENDER:-/root/.openclaw/ops/heartbeat_sender.sh}"
 REMOTE_CRON_MATCH="${OC101_DRILL_REMOTE_CRON_MATCH:-/root/.openclaw/ops/heartbeat_sender.sh}"
-REMOTE_CRON_LINE="set -a; . ${REMOTE_ENV}; set +a; ${REMOTE_SENDER} >> /root/.openclaw/ops/heartbeat_sender.log 2>&1"
-REMOTE_HOST="${OPENCLAW101_HOST:-}"
+REMOTE_CRON_LINE=". ${REMOTE_ENV} && ${REMOTE_SENDER} >> /root/.openclaw/ops/heartbeat_sender.log 2>&1"
+REMOTE_HOST="${OPENCLAW101_HOST:-192.168.1.101}"
 REMOTE_USER="${OPENCLAW101_USER:-root}"
 REMOTE_IDENTITY="${OPENCLAW101_IDENTITY:-${OPENCLAW101_DEFAULT_IDENTITY:-$HOME/.ssh/oc101_ed25519}}"
 
@@ -29,7 +28,6 @@ require systemctl
 
 [[ -f "$WD_ENV" ]] || { echo "watchdog env not found: $WD_ENV" >&2; exit 2; }
 [[ -f "$LOG_FILE" ]] || touch "$LOG_FILE"
-[[ -n "$REMOTE_HOST" ]] || { echo "OPENCLAW101_HOST is required" >&2; exit 2; }
 
 ssh_remote() {
   local target="${REMOTE_USER}@${REMOTE_HOST}"

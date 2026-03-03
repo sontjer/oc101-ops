@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-ENV_FILE="${1:-$SCRIPT_DIR/../examples/oc101_watchdog.env}"
+ENV_FILE="${1:-$HOME/.codex/skills/openclaw-101/scripts/oc101_watchdog.env}"
 if [[ ! -f "$ENV_FILE" ]]; then
   echo "env file not found: $ENV_FILE" >&2
-  echo "create it first: cp $SCRIPT_DIR/../examples/oc101_watchdog.env.example $SCRIPT_DIR/../examples/oc101_watchdog.env" >&2
+  echo "create it first: cp $HOME/.codex/skills/openclaw-101/scripts/oc101_watchdog.env.example $HOME/.codex/skills/openclaw-101/scripts/oc101_watchdog.env" >&2
   exit 2
 fi
 
@@ -14,4 +13,4 @@ set -a
 source "$ENV_FILE"
 set +a
 
-exec "$SCRIPT_DIR/oc101_watchdog.py"
+exec "$HOME/.codex/skills/openclaw-101/scripts/oc101_watchdog.py"
