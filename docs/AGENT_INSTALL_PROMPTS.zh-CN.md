@@ -9,8 +9,8 @@
 
 ## 0) 需要你先准备的参数
 
-- `<REPO_URL>`：仓库地址（例如 `https://github.com/sontjer/oc101-ops.git`）
-- `<INSTALL_DIR>`：安装目录（例如 `~/oc101-ops`）
+- `<REPO_URL>`（非必要）：仓库地址（例如 `https://github.com/sontjer/oc101-ops.git`）
+- `<INSTALL_DIR>`：安装目录（例如 `~/oc101-ops`，如果已存在本地仓库目录可直接使用）
 - `<TARGET_HOST>`：OpenClaw 主机 IP 或域名
 - `<TARGET_USER>`：SSH 用户（通常 `root`）
 - `<SSH_KEY_PATH>`：SSH 私钥路径
@@ -27,7 +27,7 @@
 请在当前机器上完整安装并配置 oc101-ops，按下面要求直接执行命令并修改文件，不要只输出建议。
 
 目标：
-- 从 <REPO_URL> 安装到 <INSTALL_DIR>
+- 从 <REPO_URL> 安装到 <INSTALL_DIR>（若 <INSTALL_DIR> 已有代码则跳过 clone）
 - 配置 scripts/oc101 可连接 <TARGET_USER>@<TARGET_HOST>
 - 配置 watchdog 与 heartbeat sender
 - 输出最终验证结果
@@ -41,7 +41,7 @@
   3) scripts/oc101 doctor
 
 执行步骤：
-1. clone/pull <REPO_URL> 到 <INSTALL_DIR>
+1. 若 <INSTALL_DIR> 不存在或为空：clone/pull <REPO_URL> 到 <INSTALL_DIR>；否则直接使用现有目录
 2. chmod +x scripts/*
 3. 复制 examples/oc101_watchdog.env.example 为可用 env，并写入：
    - OC101_WD_BIND_HOST=<WATCHDOG_BIND_HOST>
@@ -78,7 +78,7 @@
 不要停留在计划，遇到可执行步骤就立即执行。
 
 参数：
-REPO_URL=<REPO_URL>
+REPO_URL=<REPO_URL，可留空>
 INSTALL_DIR=<INSTALL_DIR>
 TARGET_HOST=<TARGET_HOST>
 TARGET_USER=<TARGET_USER>
@@ -91,7 +91,7 @@ TG_CHAT_ID=<TG_CHAT_ID>
 AUTO_RESTART_ENABLED=<AUTO_RESTART_ENABLED>
 
 任务：
-1. 安装仓库并赋权 scripts。
+1. 若本地无代码则安装仓库；若已有则直接赋权 scripts。
 2. 基于 examples 生成可用 env 文件（不要覆盖 example 文件）。
 3. 配置 oc101 所需 SSH 环境变量。
 4. 验证 ssh 到目标主机可执行 openclaw 命令。
@@ -110,7 +110,7 @@ AUTO_RESTART_ENABLED=<AUTO_RESTART_ENABLED>
 请自动化执行 oc101-ops 部署，目标是“可持续运行 + 可验证”。
 
 输入变量：
-- REPO_URL=<REPO_URL>
+- REPO_URL=<REPO_URL，可留空>
 - INSTALL_DIR=<INSTALL_DIR>
 - TARGET_HOST=<TARGET_HOST>
 - TARGET_USER=<TARGET_USER>

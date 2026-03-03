@@ -9,8 +9,8 @@ How to use:
 
 ## 0) Inputs You Must Prepare
 
-- `<REPO_URL>`: repository URL (for example `https://github.com/sontjer/oc101-ops.git`)
-- `<INSTALL_DIR>`: install directory (for example `~/oc101-ops`)
+- `<REPO_URL>` (optional): repository URL (for example `https://github.com/sontjer/oc101-ops.git`)
+- `<INSTALL_DIR>`: install directory (for example `~/oc101-ops`; if code already exists locally, reuse it)
 - `<TARGET_HOST>`: OpenClaw host IP/domain
 - `<TARGET_USER>`: SSH user (usually `root`)
 - `<SSH_KEY_PATH>`: SSH private key path
@@ -27,7 +27,7 @@ How to use:
 Install and configure oc101-ops fully on this machine. Execute commands and edit files directly; do not stop at recommendations.
 
 Goals:
-- Install from <REPO_URL> into <INSTALL_DIR>
+- Install from <REPO_URL> into <INSTALL_DIR> (skip clone if <INSTALL_DIR> already contains the repo)
 - Configure scripts/oc101 to connect to <TARGET_USER>@<TARGET_HOST>
 - Configure watchdog and heartbeat sender
 - Return final verification results
@@ -41,7 +41,7 @@ Constraints:
   3) scripts/oc101 doctor
 
 Steps:
-1. clone/pull <REPO_URL> into <INSTALL_DIR>
+1. If <INSTALL_DIR> is missing/empty, clone/pull <REPO_URL> into <INSTALL_DIR>; otherwise reuse existing local repo
 2. chmod +x scripts/*
 3. Copy examples/oc101_watchdog.env.example to a working env and set:
    - OC101_WD_BIND_HOST=<WATCHDOG_BIND_HOST>
@@ -78,7 +78,7 @@ Act as an operations execution agent. Install and configure oc101-ops directly i
 Do not stop at planning when actions are executable.
 
 Parameters:
-REPO_URL=<REPO_URL>
+REPO_URL=<REPO_URL, can be empty>
 INSTALL_DIR=<INSTALL_DIR>
 TARGET_HOST=<TARGET_HOST>
 TARGET_USER=<TARGET_USER>
@@ -91,7 +91,7 @@ TG_CHAT_ID=<TG_CHAT_ID>
 AUTO_RESTART_ENABLED=<AUTO_RESTART_ENABLED>
 
 Tasks:
-1. Install repository and set script execute permissions.
+1. If repo is not present locally, install it; then set script execute permissions.
 2. Create working env files from examples (do not overwrite example files).
 3. Configure SSH env vars required by oc101.
 4. Verify ssh + openclaw command execution on target host.
@@ -110,7 +110,7 @@ Requirements:
 Automate oc101-ops deployment end-to-end with a "running and verifiable" result.
 
 Input variables:
-- REPO_URL=<REPO_URL>
+- REPO_URL=<REPO_URL, can be empty>
 - INSTALL_DIR=<INSTALL_DIR>
 - TARGET_HOST=<TARGET_HOST>
 - TARGET_USER=<TARGET_USER>
