@@ -6,6 +6,10 @@ Agent 安装提示词模板： [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_
 
 本仓库整理了 `oc101` 包装脚本和 watchdog 监控脚本，来源于对 OpenClaw 主机（默认示例 `192.168.1.101`）的实际运维流程。
 
+## 关键能力
+
+当 OpenClaw Gateway 崩溃或心跳中断时，watchdog 会通过 Telegram 发送包含诊断上下文的求救告警，便于运维快速介入。
+
 ## 仓库内容
 
 - `scripts/oc101`：官方 `openclaw` CLI 的 SSH 包装器。
@@ -97,6 +101,7 @@ scripts/oc101 doctor
 - 默认监听：`0.0.0.0:18891/heartbeat`
 - 心跳使用 HMAC 签名（`X-OC-*` 头）
 - 超时后会执行：`oc101 status`、`gateway-status`、`doctor`
+- 若 Gateway 不健康，会通过 Telegram 发送 incident/求救告警并附带诊断结果摘要
 - 支持一次性自动重启（受冷却时间和失败次数限制）
 - 同一超时窗口仅发一次 incident；恢复后发送 recovered
 

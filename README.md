@@ -8,6 +8,10 @@ Agent prompts (zh-CN): [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_INSTALL_
 
 This repository packages the `oc101` wrapper and watchdog scripts that were used to operate an OpenClaw host (`192.168.1.101`) in production-like workflows.
 
+## Key Capability
+
+When the OpenClaw Gateway crashes or loses heartbeat, watchdog sends Telegram SOS alerts with diagnostic context so operators can respond quickly.
+
 ## What This Repo Contains
 
 - `scripts/oc101`: SSH wrapper around official `openclaw` CLI commands.
@@ -99,6 +103,7 @@ Channels and models:
 - Endpoint defaults to `0.0.0.0:18891/heartbeat`.
 - Heartbeat includes HMAC signature (`X-OC-*` headers).
 - Timeout triggers `oc101 status`, `gateway-status`, `doctor`.
+- If Gateway is unhealthy, Telegram receives an incident/SOS alert with health-check outputs.
 - Optional one-shot auto-restart is rate-limited by cooldown/failure counters.
 - Alerts are deduplicated by timeout window and send one recovery message after heartbeat resumes.
 
