@@ -75,8 +75,9 @@ Config:
 
 Upgrade:
 - `oc101 upgrade-status`
+- `oc101 upgrade-review`
 - `oc101 upgrade-plan`
-- `oc101 upgrade ... --apply`
+- `OPENCLAW101_UPGRADE_CONFIRM=YES oc101 upgrade ... --apply`
 
 Security and secrets:
 - `oc101 security-audit`
@@ -89,6 +90,22 @@ Channels and models:
 - `oc101 channels-list`
 - `oc101 models-set <model>`
 - `oc101 models-probe`
+
+## Spoken Instruction to CLI Mapping
+
+| Spoken instruction | CLI command |
+|---|---|
+| "Check OpenClaw status now" | `scripts/oc101 status` |
+| "Check gateway status" | `scripts/oc101 gateway-status` |
+| "Run a doctor check" | `scripts/oc101 doctor` |
+| "Probe channel health" | `scripts/oc101 channels-probe` |
+| "Restart gateway" | `scripts/oc101 gateway-restart` |
+| "Backup current config first" | `scripts/oc101 config-backup` |
+| "Backup including secrets" | `scripts/oc101 config-backup --include-secrets` |
+| "Review latest release and compare before upgrade" | `scripts/oc101 upgrade-review` |
+| "Show upgrade plan" | `scripts/oc101 upgrade-plan` |
+| "Confirm and upgrade now" | `OPENCLAW101_UPGRADE_CONFIRM=YES scripts/oc101 upgrade --apply` |
+| "Set default model to MiniMax-M2.5" | `scripts/oc101 models-set minimax-cn/MiniMax-M2.5` |
 
 ## Environment Overrides (oc101)
 

@@ -73,8 +73,9 @@ scripts/oc101 doctor
 
 升级：
 - `oc101 upgrade-status`
+- `oc101 upgrade-review`
 - `oc101 upgrade-plan`
-- `oc101 upgrade ... --apply`
+- `OPENCLAW101_UPGRADE_CONFIRM=YES oc101 upgrade ... --apply`
 
 安全与密钥：
 - `oc101 security-audit`
@@ -87,6 +88,22 @@ scripts/oc101 doctor
 - `oc101 channels-list`
 - `oc101 models-set <model>`
 - `oc101 models-probe`
+
+## 口头指令与命令行对照
+
+| 口头指令 | 命令行 |
+|---|---|
+| “现在检查 OpenClaw 状态” | `scripts/oc101 status` |
+| “检查网关状态” | `scripts/oc101 gateway-status` |
+| “跑一遍 doctor 诊断” | `scripts/oc101 doctor` |
+| “探测渠道健康状态” | `scripts/oc101 channels-probe` |
+| “重启网关” | `scripts/oc101 gateway-restart` |
+| “先备份当前配置” | `scripts/oc101 config-backup` |
+| “连 secrets 一起备份” | `scripts/oc101 config-backup --include-secrets` |
+| “升级前先调研最新 release 并对比” | `scripts/oc101 upgrade-review` |
+| “看升级流程计划” | `scripts/oc101 upgrade-plan` |
+| “确认后立刻升级” | `OPENCLAW101_UPGRADE_CONFIRM=YES scripts/oc101 upgrade --apply` |
+| “把默认模型切到 MiniMax-M2.5” | `scripts/oc101 models-set minimax-cn/MiniMax-M2.5` |
 
 ## 环境变量覆盖（oc101）
 
