@@ -49,6 +49,156 @@ timestamp() {
   date -u +"%Y%m%d-%H%M%S"
 }
 
+upgrade_review_stamp_path() {
+  echo "$HOME/.codex/tmp/oc101-upgrade-review-${HOST}.stamp"
+}
+
+upgrade_review_extract_release() {
+  python3 - <<'PY'
+import json
+import re
+import sys
+import urllib.request
+
+url = "https://api.github.com/repos/openclaw/openclaw/releases?per_page=30"
+req = urllib.request.Request(url, headers={"Accept": "application/vnd.github+json", "User-Agent": "oc101-upgrade-review"})
+with urllib.request.urlopen(req, timeout=20) as resp:
+    data = json.loads(resp.read().decode("utf-8", errors="replace"))
+
+release = None
+for r in data:
+    if not r.get("draft") and not r.get("prerelease"):
+        release = r
+        break
+
+if not release:
+    sys.exit("no stable release found")
+
+body = release.get("body") or ""
+kw = re.compile(r"(breaking|deprecat|migration|config|default|security|upgrade|changed?|removed?|added?|new)", re.I)
+highlights = []
+for line in body.splitlines():
+    s = line.strip()
+    if not s:
+        continue
+    if kw.search(s):
+        s = re.sub(r"^[\-\*\d\.\)\s]+", "", s).strip()
+        if s and s not in highlights:
+            highlights.append(s)
+    if len(highlights) >= 24:
+        break
+
+print(f"TAG={release.get('tag_name','')}")
+print(f"NAME={release.get('name','')}")
+print(f"PUBLISHED_AT={release.get('published_at','')}")
+print(f"URL={release.get('html_url','')}")
+for h in highlights:
+    print(f"HIGHLIGHT={h}")
+PY
+}
+
+upgrade_review() {
+  command -v python3 >/dev/null 2>&1 || die "python3 not found (required for upgrade-review)"
+
+  local release_info tag name published_at url
+  local -a highlights
+  release_info="$(upgrade_review_extract_release)" || die "failed to fetch/parse GitHub releases"
+
+  tag="$(printf '%s\n' "$release_info" | awk -F= '/^TAG=/{print substr($0,5); exit}')"
+  name="$(printf '%s\n' "$release_info" | awk -F= '/^NAME=/{print substr($0,6); exit}')"
+  published_at="$(printf '%s\n' "$release_info" | awk -F= '/^PUBLISHED_AT=/{print substr($0,14); exit}')"
+  url="$(printf '%s\n' "$release_info" | awk -F= '/^URL=/{print substr($0,5); exit}')"
+  while IFS= read -r line; do
+    highlights+=("${line#HIGHLIGHT=}")
+  done < <(printf '%s\n' "$release_info" | awk '/^HIGHLIGHT=/')
+
+  local status_out
+  status_out="$(ssh_cmd 'openclaw update status' 2>&1 || true)"
+
+  local -a keys=(
+    "agents.defaults.model.primary"
+    "gateway.bind"
+    "gateway.trustedProxies"
+    "tools.profile"
+    "tools.exec.host"
+    "tools.exec.security"
+    "tools.exec.ask"
+    "channels.telegram.streaming"
+    "channels.telegram.dmPolicy"
+    "channels.telegram.allowFrom"
+    "acp.dispatch.enabled"
+  )
+
+  echo "=== oc101 upgrade review ==="
+  echo "target host: ${USER}@${HOST}"
+  echo "review time (UTC): $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+  echo
+  echo "latest stable release (GitHub):"
+  echo "  tag: ${tag}"
+  echo "  name: ${name}"
+  echo "  published_at: ${published_at}"
+  echo "  url: ${url}"
+  echo
+  echo "openclaw update status (server):"
+  printf '%s\n' "$status_out"
+  echo
+  echo "release highlights (filtered: breaking/config/migration/security/default/change):"
+  if [[ ${#highlights[@]} -eq 0 ]]; then
+    echo "  (no keyword-matched highlights extracted; review full notes manually)"
+  else
+    local h
+    for h in "${highlights[@]}"; do
+      echo "  - $h"
+    done
+  fi
+  echo
+  echo "current server config snapshot (for comparison):"
+  local k v
+  for k in "${keys[@]}"; do
+    v="$(ssh_cmd "openclaw config get $k" 2>&1 || true)"
+    printf '  - %s = %s\n' "$k" "$v"
+  done
+  echo
+  echo "next step:"
+  echo "  1) confirm release-note impacts with the above config snapshot"
+  echo "  2) run backup: oc101 config-backup"
+  echo "  3) if confirmed, execute:"
+  echo "     OPENCLAW101_UPGRADE_CONFIRM=YES oc101 upgrade --apply [--channel ...] [--tag ...] [--no-restart]"
+
+  mkdir -p "$HOME/.codex/tmp"
+  {
+    echo "ts=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+    echo "tag=${tag}"
+    echo "host=${HOST}"
+  } > "$(upgrade_review_stamp_path)"
+  echo "review stamp saved: $(upgrade_review_stamp_path)"
+}
+
+run_config_backup() {
+  local include_secrets="$1"
+  local out_dir="$2"
+
+  mkdir -p "$out_dir"
+  local ts local_name local_path remote_tmp
+  ts="$(timestamp)"
+  local_name="openclaw-101-config-${HOST}-${ts}.tgz"
+  local_path="${out_dir%/}/$local_name"
+
+  remote_tmp="/tmp/${local_name}"
+  local -a remote_include=(
+    "/root/.openclaw/openclaw.json"
+    "/root/.openclaw/agents"
+  )
+  if [[ "$include_secrets" == "1" ]]; then
+    remote_include+=("/root/.openclaw/secrets.json")
+  fi
+
+  ssh_cmd "sudo tar -czf $(printf %q "$remote_tmp") ${remote_include[*]} 2>/dev/null || tar -czf $(printf %q "$remote_tmp") ${remote_include[*]}"
+  scp_cmd "${USER}@${HOST}:$remote_tmp" "$local_path"
+  ssh_cmd "rm -f $(printf %q "$remote_tmp")" || true
+  printf '%s\n' "$local_path"
+}
+
 usage() {
   cat >&2 <<'USAGE'
 usage: oc101 <command> [args]
@@ -74,6 +224,7 @@ Config management:
 
 Update:
   oc101 upgrade-status
+  oc101 upgrade-review
   oc101 upgrade-plan
   oc101 upgrade [--channel <stable|beta|dev>] [--tag <dist-tag|version>] [--no-restart] [--apply]
 
@@ -97,6 +248,7 @@ env overrides:
   OPENCLAW101_PASS (optional; uses sshpass)
   OPENCLAW101_IDENTITY (optional; ssh -i <path>)
   OPENCLAW101_DEFAULT_IDENTITY (default ~/.ssh/oc101_ed25519)
+  OPENCLAW101_UPGRADE_CONFIRM=YES (required when running oc101 upgrade --apply)
 USAGE
 }
 
@@ -169,23 +321,7 @@ case "$sub" in
       esac
     done
 
-    mkdir -p "$out_dir"
-    ts="$(timestamp)"
-    local_name="openclaw-101-config-${HOST}-${ts}.tgz"
-    local_path="${out_dir%/}/$local_name"
-
-    remote_tmp="/tmp/${local_name}"
-    remote_include=(
-      "/root/.openclaw/openclaw.json"
-      "/root/.openclaw/agents"
-    )
-    if [[ "$include_secrets" == "1" ]]; then
-      remote_include+=("/root/.openclaw/secrets.json")
-    fi
-
-    ssh_cmd "sudo tar -czf $(printf %q "$remote_tmp") ${remote_include[*]} 2>/dev/null || tar -czf $(printf %q "$remote_tmp") ${remote_include[*]}"
-    scp_cmd "${USER}@${HOST}:$remote_tmp" "$local_path"
-    ssh_cmd "rm -f $(printf %q "$remote_tmp")" || true
+    local_path="$(run_config_backup "$include_secrets" "$out_dir")"
     echo "saved: $local_path"
     ;;
   config-restore)
@@ -204,21 +340,15 @@ case "$sub" in
   upgrade-status)
     ssh_cmd 'openclaw update status'
     ;;
+  upgrade-review)
+    upgrade_review
+    ;;
   upgrade-plan)
     cat <<'TXT'
 Upgrade workflow (safe-ish):
 
-  1) Review release notes + config changes
-     - GitHub releases: https://github.com/openclaw/openclaw/releases
-     - Docs: https://docs.openclaw.ai/install/updating
-     - Compare checklist (run before apply):
-       oc101 config-get agents.defaults.model.primary
-       oc101 config-get channels.telegram.streaming
-       oc101 config-get channels.telegram.dmPolicy
-       oc101 config-get channels.telegram.allowFrom
-       oc101 config-get gateway.bind
-       oc101 config-get tools.profile
-       oc101 config-get acp.dispatch.enabled
+  1) Automated review (GitHub release + server config snapshot)
+     oc101 upgrade-review
 
   2) Preflight on the server
      oc101 upgrade-status
@@ -233,7 +363,7 @@ Upgrade workflow (safe-ish):
      openclaw update --dry-run
 
   5) Apply update (after confirming changes)
-     oc101 upgrade --apply
+     OPENCLAW101_UPGRADE_CONFIRM=YES oc101 upgrade --apply
 
   6) Verify
      oc101 status
@@ -274,6 +404,23 @@ TXT
       echo "To update: oc101 upgrade --apply [--channel ...] [--tag ...] [--no-restart]" >&2
       exit 2
     fi
+
+    stamp="$(upgrade_review_stamp_path)"
+    if [[ ! -f "$stamp" ]]; then
+      echo "Refusing to update: no upgrade review stamp found." >&2
+      echo "Run: oc101 upgrade-review" >&2
+      exit 2
+    fi
+    if [[ "${OPENCLAW101_UPGRADE_CONFIRM:-}" != "YES" ]]; then
+      echo "Refusing to update: missing explicit confirmation." >&2
+      echo "After reviewing changes, run:" >&2
+      echo "  OPENCLAW101_UPGRADE_CONFIRM=YES oc101 upgrade --apply [--channel ...] [--tag ...] [--no-restart]" >&2
+      exit 2
+    fi
+
+    echo "Creating pre-upgrade backup (without secrets)..."
+    backup_path="$(run_config_backup "0" "$HOME/.codex/backups/openclaw-101")"
+    echo "Pre-upgrade backup saved: $backup_path"
 
     ssh_cmd "openclaw update ${update_args[*]}"
     ;;
