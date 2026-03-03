@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+
+# Runtime artifacts
+*.log
+*.pid
+*.tmp
+
+# Secrets / env
+*.env
+*.env.local
+examples/*.env
+!examples/*.env.example
+
+# Local backups
+*.bak
+*.tgz
+backups/
+
+# OS
+.DS_Store

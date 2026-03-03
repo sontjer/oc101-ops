@@ -1,0 +1,317 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+HOST="${OPENCLAW101_HOST:-192.168.1.101}"
+USER="${OPENCLAW101_USER:-root}"
+IDENTITY_FILE="${OPENCLAW101_IDENTITY:-}"
+DEFAULT_IDENTITY="${OPENCLAW101_DEFAULT_IDENTITY:-$HOME/.ssh/oc101_ed25519}"
+if [[ -z "${IDENTITY_FILE}" && -f "${DEFAULT_IDENTITY}" ]]; then
+  IDENTITY_FILE="${DEFAULT_IDENTITY}"
+fi
+SSH_OPTS=(
+  -o StrictHostKeyChecking=no
+  -o UserKnownHostsFile=/dev/null
+  -o ConnectTimeout=8
+)
+
+ssh_cmd() {
+  local -a opts=("${SSH_OPTS[@]}")
+  if [[ -n "${IDENTITY_FILE}" ]]; then
+    opts+=(-i "${IDENTITY_FILE}" -o IdentitiesOnly=yes)
+  fi
+  if [[ -n "${OPENCLAW101_PASS:-}" ]]; then
+    command -v sshpass >/dev/null 2>&1 || { echo "sshpass not found (needed for OPENCLAW101_PASS mode)" >&2; exit 2; }
+    sshpass -p "${OPENCLAW101_PASS}" ssh "${opts[@]}" "${USER}@${HOST}" "$@"
+  else
+    ssh "${opts[@]}" "${USER}@${HOST}" "$@"
+  fi
+}
+
+scp_cmd() {
+  local -a opts=("${SSH_OPTS[@]}")
+  if [[ -n "${IDENTITY_FILE}" ]]; then
+    opts+=(-i "${IDENTITY_FILE}" -o IdentitiesOnly=yes)
+  fi
+  if [[ -n "${OPENCLAW101_PASS:-}" ]]; then
+    command -v sshpass >/dev/null 2>&1 || { echo "sshpass not found (needed for OPENCLAW101_PASS mode)" >&2; exit 2; }
+    sshpass -p "${OPENCLAW101_PASS}" scp "${opts[@]}" "$@"
+  else
+    scp "${opts[@]}" "$@"
+  fi
+}
+
+die() {
+  echo "$*" >&2
+  exit 2
+}
+
+timestamp() {
+  date -u +"%Y%m%d-%H%M%S"
+}
+
+usage() {
+  cat >&2 <<'USAGE'
+usage: oc101 <command> [args]
+
+Status & health:
+  oc101 status
+  oc101 gateway-status
+  oc101 doctor [--fix]
+  oc101 channels-probe
+
+Gateway management:
+  oc101 gateway-install
+  oc101 gateway-start
+  oc101 gateway-stop
+  oc101 gateway-restart
+
+Config management:
+  oc101 config-get <path>
+  oc101 config-set <path> <value>
+  oc101 config-backup [--include-secrets] [--out <dir>]
+  oc101 config-restore <backup.tgz>
+  oc101 configure
+
+Update:
+  oc101 upgrade-status
+  oc101 upgrade-plan
+  oc101 upgrade [--channel <stable|beta|dev>] [--tag <dist-tag|version>] [--no-restart] [--apply]
+
+Security:
+  oc101 security-audit
+  oc101 security-audit-fix
+  oc101 secrets-reload
+
+Channels:
+  oc101 channels-add
+  oc101 channels-login
+  oc101 channels-list
+
+Models:
+  oc101 models-set <model>
+  oc101 models-probe
+
+env overrides:
+  OPENCLAW101_HOST (default 192.168.1.101)
+  OPENCLAW101_USER (default root)
+  OPENCLAW101_PASS (optional; uses sshpass)
+  OPENCLAW101_IDENTITY (optional; ssh -i <path>)
+  OPENCLAW101_DEFAULT_IDENTITY (default ~/.ssh/oc101_ed25519)
+USAGE
+}
+
+sub="${1:-}"
+shift || true
+
+case "$sub" in
+  status)
+    ssh_cmd 'openclaw status'
+    ;;
+  gateway-status)
+    ssh_cmd 'openclaw gateway status'
+    ;;
+  doctor)
+    if [[ $# -gt 0 ]]; then
+      ssh_cmd "openclaw doctor $*"
+    else
+      ssh_cmd 'openclaw doctor'
+    fi
+    ;;
+  channels-probe)
+    ssh_cmd 'openclaw channels status --probe'
+    ;;
+
+  gateway-install)
+    ssh_cmd 'openclaw gateway install'
+    ;;
+  gateway-start)
+    ssh_cmd 'openclaw gateway start'
+    ;;
+  gateway-stop)
+    ssh_cmd 'openclaw gateway stop'
+    ;;
+  gateway-restart)
+    ssh_cmd 'openclaw gateway restart'
+    ;;
+
+  config-get)
+    [[ $# -eq 1 ]] || { usage; exit 2; }
+    ssh_cmd "openclaw config get $1"
+    ;;
+  config-set)
+    [[ $# -ge 2 ]] || { usage; exit 2; }
+    key="$1"; shift
+    # Value may contain spaces; pass as a single shell-escaped string.
+    val="$*"
+    ssh_cmd "openclaw config set $key $(printf %q "$val")"
+    ;;
+  config-backup)
+    include_secrets="0"
+    out_dir="$HOME/.codex/backups/openclaw-101"
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --include-secrets)
+          include_secrets="1"
+          shift
+          ;;
+        --out)
+          [[ $# -ge 2 ]] || die "missing value for --out"
+          out_dir="$2"
+          shift 2
+          ;;
+        -h|--help)
+          usage
+          exit 0
+          ;;
+        *)
+          die "unknown arg for config-backup: $1"
+          ;;
+      esac
+    done
+
+    mkdir -p "$out_dir"
+    ts="$(timestamp)"
+    local_name="openclaw-101-config-${HOST}-${ts}.tgz"
+    local_path="${out_dir%/}/$local_name"
+
+    remote_tmp="/tmp/${local_name}"
+    remote_include=(
+      "/root/.openclaw/openclaw.json"
+      "/root/.openclaw/agents"
+    )
+    if [[ "$include_secrets" == "1" ]]; then
+      remote_include+=("/root/.openclaw/secrets.json")
+    fi
+
+    ssh_cmd "sudo tar -czf $(printf %q "$remote_tmp") ${remote_include[*]} 2>/dev/null || tar -czf $(printf %q "$remote_tmp") ${remote_include[*]}"
+    scp_cmd "${USER}@${HOST}:$remote_tmp" "$local_path"
+    ssh_cmd "rm -f $(printf %q "$remote_tmp")" || true
+    echo "saved: $local_path"
+    ;;
+  config-restore)
+    [[ $# -eq 1 ]] || { usage; exit 2; }
+    backup_path="$1"
+    [[ -f "$backup_path" ]] || die "file not found: $backup_path"
+    remote_tmp="/tmp/oc101-restore-$(timestamp).tgz"
+    scp_cmd "$backup_path" "${USER}@${HOST}:$remote_tmp"
+    ssh_cmd "tar -xzf $(printf %q "$remote_tmp") -C / && rm -f $(printf %q "$remote_tmp")"
+    echo "restored from: $backup_path"
+    ;;
+  configure)
+    ssh_cmd 'openclaw configure'
+    ;;
+
+  upgrade-status)
+    ssh_cmd 'openclaw update status'
+    ;;
+  upgrade-plan)
+    cat <<'TXT'
+Upgrade workflow (safe-ish):
+
+  1) Review release notes + config changes
+     - GitHub releases: https://github.com/openclaw/openclaw/releases
+     - Docs: https://docs.openclaw.ai/install/updating
+     - Compare checklist (run before apply):
+       oc101 config-get agents.defaults.model.primary
+       oc101 config-get channels.telegram.streaming
+       oc101 config-get channels.telegram.dmPolicy
+       oc101 config-get channels.telegram.allowFrom
+       oc101 config-get gateway.bind
+       oc101 config-get tools.profile
+       oc101 config-get acp.dispatch.enabled
+
+  2) Preflight on the server
+     oc101 upgrade-status
+     oc101 doctor
+
+  3) Backup state/config locally (recommended)
+     oc101 config-backup
+     # include secrets only if you will store the backup securely:
+     oc101 config-backup --include-secrets
+
+  4) Dry-run the updater (optional)
+     openclaw update --dry-run
+
+  5) Apply update (after confirming changes)
+     oc101 upgrade --apply
+
+  6) Verify
+     oc101 status
+     oc101 gateway-status
+TXT
+    ;;
+  upgrade)
+    apply="0"
+    update_args=()
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --apply)
+          apply="1"
+          shift
+          ;;
+        --channel|--tag|--timeout)
+          [[ $# -ge 2 ]] || die "missing value for $1"
+          update_args+=("$1" "$2")
+          shift 2
+          ;;
+        --no-restart|--json|--dry-run)
+          update_args+=("$1")
+          shift
+          ;;
+        -h|--help)
+          usage
+          exit 0
+          ;;
+        *)
+          die "unknown arg for upgrade: $1"
+          ;;
+      esac
+    done
+
+    if [[ "$apply" != "1" ]]; then
+      echo "Refusing to update without --apply." >&2
+      echo "Tip: run 'oc101 upgrade-plan' for the recommended workflow." >&2
+      echo "To update: oc101 upgrade --apply [--channel ...] [--tag ...] [--no-restart]" >&2
+      exit 2
+    fi
+
+    ssh_cmd "openclaw update ${update_args[*]}"
+    ;;
+
+  security-audit)
+    ssh_cmd 'openclaw security audit'
+    ;;
+  security-audit-fix)
+    ssh_cmd 'openclaw security audit --fix'
+    ;;
+  secrets-reload)
+    ssh_cmd 'openclaw secrets reload'
+    ;;
+
+  channels-add)
+    ssh_cmd 'openclaw channels add'
+    ;;
+  channels-login)
+    ssh_cmd 'openclaw channels login'
+    ;;
+  channels-list)
+    ssh_cmd 'openclaw channels list'
+    ;;
+
+  models-set)
+    [[ $# -eq 1 ]] || { usage; exit 2; }
+    ssh_cmd "openclaw models set $1"
+    ;;
+  models-probe)
+    ssh_cmd 'openclaw models status --probe'
+    ;;
+
+  -h|--help|help|"")
+    usage
+    ;;
+  *)
+    echo "unknown command: $sub" >&2
+    usage
+    exit 2
+    ;;
+esac
