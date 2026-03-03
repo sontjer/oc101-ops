@@ -3,6 +3,7 @@
 Official-CLI-first operations toolkit for managing OpenClaw over SSH.
 
 中文说明: [README.zh-CN.md](README.zh-CN.md)
+Agent prompts (zh-CN): [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_INSTALL_PROMPTS.zh-CN.md)
 
 This repository packages the `oc101` wrapper and watchdog scripts that were used to operate an OpenClaw host (`192.168.1.101`) in production-like workflows.
 
