@@ -1,4 +1,4 @@
-# openclaw-oc101-ops
+# OpenClaw-oc101-ops
 
 Operational toolkit for coding agent managing OpenClaw over SSH.
 
