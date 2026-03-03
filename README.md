@@ -132,6 +132,11 @@ Channels and models:
 - `OPENCLAW101_DEFAULT_IDENTITY` (fallback key path used only when `OPENCLAW101_IDENTITY` is unset; default `~/.ssh/oc101_ed25519`)
 - `OPENCLAW101_PASS` (optional, requires `sshpass`)
 
+Watchdog alert env (Telegram):
+- `OC101_WD_TELEGRAM_BOT_TOKEN` (required for Telegram alerts)
+- `OC101_WD_TELEGRAM_CHAT_ID` (required for Telegram alerts)
+- Must use an independent operations bot token, not the same bot token used by the monitored OpenClaw business channel/bot.
+
 ## Watchdog Notes
 
 - Endpoint defaults to `0.0.0.0:18891/heartbeat`.

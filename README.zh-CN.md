@@ -133,6 +133,11 @@ scripts/oc101 doctor
 - `OPENCLAW101_DEFAULT_IDENTITY`（回退私钥路径；仅当未设置 `OPENCLAW101_IDENTITY` 时生效，默认 `~/.ssh/oc101_ed25519`）
 - `OPENCLAW101_PASS`（可选，需安装 `sshpass`）
 
+Watchdog 告警环境变量（Telegram）：
+- `OC101_WD_TELEGRAM_BOT_TOKEN`（启用 Telegram 告警时必填）
+- `OC101_WD_TELEGRAM_CHAT_ID`（启用 Telegram 告警时必填）
+- 必须使用独立运维 Bot 的 token，不能与被监控 OpenClaw 的业务 Bot/channel 使用同一个 token；这样在 OpenClaw Gateway 崩溃时才能收到独立告警通知。
+
 ## Watchdog 说明
 
 - 默认监听：`0.0.0.0:18891/heartbeat`
