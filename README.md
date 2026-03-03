@@ -2,22 +2,22 @@
 
 Operational toolkit for coding agent managing OpenClaw over SSH.
 
-## Documentation
+## 📚 Documentation
 
 - Agent prompts (English): [docs/AGENT_INSTALL_PROMPTS.md](docs/AGENT_INSTALL_PROMPTS.md)
 - Chinese README: [README.zh-CN.md](README.zh-CN.md)
 - Agent prompts (Chinese): [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_INSTALL_PROMPTS.zh-CN.md)
 
-Tip: send the English prompt to your coding agent and let it install for you.
+✨ Tip: send the English prompt to your coding agent and let it install for you.
 
 This repository packages the `oc101` wrapper and watchdog scripts for production-oriented OpenClaw operations.
 
-## Key Capability
+## 🚨 Key Capability
 
 When the OpenClaw Gateway crashes or loses heartbeat, watchdog sends Telegram SOS alerts with diagnostic context so operators can respond quickly.
 It also performs state analysis, root-cause diagnosis, remediation actions, and controlled restart operations.
 
-## What This Repo Contains
+## 🧰 What This Repo Contains
 
 - `scripts/oc101`: SSH wrapper around official `openclaw` CLI commands.
 - `scripts/oc101_watchdog.py`: external heartbeat watchdog with HMAC verification, timeout diagnosis, optional auto-restart, and Telegram alerting.
@@ -26,21 +26,21 @@ It also performs state analysis, root-cause diagnosis, remediation actions, and 
 - `scripts/oc101_watchdog_drill.sh`: timeout drill script with auto-restore.
 - `examples/*.env.example`: sanitized configuration templates.
 
-## Design Principles
+## 🎯 Design Principles
 
 - Use official `openclaw` commands only.
 - Keep monitoring outside the monitored OpenClaw instance.
 - Alerting bot must be independent from business bots.
 - Prefer safe workflows for upgrades and config changes (backup first).
 
-## Prerequisite
+## ✅ Prerequisite
 
 Before using this toolkit for OpenClaw maintenance automation, confirm at least one supported coding agent runtime is already installed and usable on your operator machine:
 - Claude Code
 - Codex
 - Opencode
 
-## Quick Start
+## 🚀 Quick Start
 
 1. Clone repository and enter it.
 2. Make scripts executable:
@@ -69,7 +69,7 @@ scripts/oc101 gateway-status
 scripts/oc101 doctor
 ```
 
-## `oc101` Commands
+## 🖥️ `oc101` Commands
 
 Status and health:
 - `oc101 status`
@@ -108,7 +108,7 @@ Channels and models:
 - `oc101 models-set <model>`
 - `oc101 models-probe`
 
-## Spoken Instruction to CLI Mapping
+## 🗣️ Spoken Instruction to CLI Mapping
 
 | Spoken instruction | CLI command |
 |---|---|
@@ -124,7 +124,7 @@ Channels and models:
 | "Confirm and upgrade now" | `OPENCLAW101_UPGRADE_CONFIRM=YES scripts/oc101 upgrade --apply` |
 | "Set default model to MiniMax-M2.5" | `scripts/oc101 models-set minimax-cn/MiniMax-M2.5` |
 
-## Environment Overrides (oc101)
+## 🔧 Environment Overrides (oc101)
 
 - `OPENCLAW101_HOST` (required)
 - `OPENCLAW101_USER` (default `root`)
@@ -132,12 +132,12 @@ Channels and models:
 - `OPENCLAW101_DEFAULT_IDENTITY` (fallback key path used only when `OPENCLAW101_IDENTITY` is unset; default `~/.ssh/oc101_ed25519`)
 - `OPENCLAW101_PASS` (optional, requires `sshpass`)
 
-Watchdog alert env (Telegram):
+📣 Watchdog alert env (Telegram):
 - `OC101_WD_TELEGRAM_BOT_TOKEN` (required for Telegram alerts)
 - `OC101_WD_TELEGRAM_CHAT_ID` (required for Telegram alerts)
 - Must use an independent operations bot token, not the same bot token used by the monitored OpenClaw business channel/bot.
 
-## Watchdog Notes
+## 🩺 Watchdog Notes
 
 - Endpoint defaults to `0.0.0.0:18891/heartbeat`.
 - Heartbeat includes HMAC signature (`X-OC-*` headers).
@@ -146,12 +146,12 @@ Watchdog alert env (Telegram):
 - Optional one-shot auto-restart is rate-limited by cooldown/failure counters.
 - Alerts are deduplicated by timeout window and send one recovery message after heartbeat resumes.
 
-## Security
+## 🔐 Security
 
 - Never commit real tokens/secrets/IDs.
 - Rotate leaked bot tokens and shared secrets immediately.
 - See [SECURITY.md](SECURITY.md).
 
-## License
+## 📄 License
 
 MIT. See [LICENSE](LICENSE).

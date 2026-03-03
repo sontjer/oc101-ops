@@ -2,22 +2,22 @@
 
 一个以官方 CLI 为核心的 OpenClaw SSH 运维工具包。
 
-## 文档导航
+## 📚 文档导航
 
 - 代理安装提示词（英文版）： [docs/AGENT_INSTALL_PROMPTS.md](docs/AGENT_INSTALL_PROMPTS.md)
 - 中文说明： [README.zh-CN.md](README.zh-CN.md)
 - 代理安装提示词（中文版）： [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_INSTALL_PROMPTS.zh-CN.md)
 
-请发给你的 Coding Agent，让它给你安装。
+✨ 请发给你的 Coding Agent，让它给你安装。
 
 本仓库整理了 `oc101` 包装脚本和 watchdog 监控脚本，用于 OpenClaw 的生产化运维。
 
-## 关键能力
+## 🚨 关键能力
 
 当 OpenClaw Gateway 崩溃或心跳中断时，watchdog 会通过 Telegram 发送包含诊断上下文的求救告警，便于运维快速介入。
 同时也会对崩溃原因进行状态分析、诊断原因、修复、重启等操作。
 
-## 仓库内容
+## 🧰 仓库内容
 
 - `scripts/oc101`：官方 `openclaw` CLI 的 SSH 包装器。
 - `scripts/oc101_watchdog.py`：外部心跳看门狗，支持 HMAC 验签、超时诊断、可选自动重启、Telegram 告警。
@@ -26,21 +26,21 @@
 - `scripts/oc101_watchdog_drill.sh`：超时演练脚本（自动恢复演练前配置）。
 - `examples/*.env.example`：脱敏后的配置模板。
 
-## 设计原则
+## 🎯 设计原则
 
 - 只调用官方 `openclaw` 命令。
 - 监控链路与被监控实例分离（外部看门狗）。
 - 告警 bot 与业务 bot 分离。
 - 升级和配置变更遵循“先备份再执行”。
 
-## 前提条件
+## ✅ 前提条件
 
 在使用本工具包进行 OpenClaw 自动化维护前，请先确认运维机已安装并可用以下编码代理运行环境中的至少一个：
 - Claude Code
 - Codex
 - Opencode
 
-## 快速开始
+## 🚀 快速开始
 
 1. 克隆仓库并进入目录。
 2. 给脚本执行权限：
@@ -70,7 +70,7 @@ scripts/oc101 gateway-status
 scripts/oc101 doctor
 ```
 
-## `oc101` 命令清单
+## 🖥️ `oc101` 命令清单
 
 状态与诊断：
 - `oc101 status`
@@ -109,7 +109,7 @@ scripts/oc101 doctor
 - `oc101 models-set <model>`
 - `oc101 models-probe`
 
-## 口头指令与命令行对照
+## 🗣️ 口头指令与命令行对照
 
 | 口头指令 | 命令行 |
 |---|---|
@@ -125,7 +125,7 @@ scripts/oc101 doctor
 | “确认后立刻升级” | `OPENCLAW101_UPGRADE_CONFIRM=YES scripts/oc101 upgrade --apply` |
 | “把默认模型切到 MiniMax-M2.5” | `scripts/oc101 models-set minimax-cn/MiniMax-M2.5` |
 
-## 环境变量覆盖（oc101）
+## 🔧 环境变量覆盖（oc101）
 
 - `OPENCLAW101_HOST`（必填）
 - `OPENCLAW101_USER`（默认 `root`）
@@ -133,12 +133,12 @@ scripts/oc101 doctor
 - `OPENCLAW101_DEFAULT_IDENTITY`（回退私钥路径；仅当未设置 `OPENCLAW101_IDENTITY` 时生效，默认 `~/.ssh/oc101_ed25519`）
 - `OPENCLAW101_PASS`（可选，需安装 `sshpass`）
 
-Watchdog 告警环境变量（Telegram）：
+📣 Watchdog 告警环境变量（Telegram）：
 - `OC101_WD_TELEGRAM_BOT_TOKEN`（启用 Telegram 告警时必填）
 - `OC101_WD_TELEGRAM_CHAT_ID`（启用 Telegram 告警时必填）
 - 必须使用独立运维 Bot 的 token，不能与被监控 OpenClaw 的业务 Bot/channel 使用同一个 token；这样在 OpenClaw Gateway 崩溃时才能收到独立告警通知。
 
-## Watchdog 说明
+## 🩺 Watchdog 说明
 
 - 默认监听：`0.0.0.0:18891/heartbeat`
 - 心跳使用 HMAC 签名（`X-OC-*` 头）
@@ -147,12 +147,12 @@ Watchdog 告警环境变量（Telegram）：
 - 支持一次性自动重启（受冷却时间和失败次数限制）
 - 同一超时窗口仅发一次 incident；恢复后发送 recovered
 
-## 安全建议
+## 🔐 安全建议
 
 - 不要提交真实 token/secret/chat_id。
 - 一旦泄露，立即轮换 bot token 和共享密钥。
 - 详见 [SECURITY.md](SECURITY.md)。
 
-## 许可证
+## 📄 许可证
 
 MIT，见 [LICENSE](LICENSE)。
