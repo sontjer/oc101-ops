@@ -15,6 +15,7 @@ This repository packages the `oc101` wrapper and watchdog scripts for production
 ## Key Capability
 
 When the OpenClaw Gateway crashes or loses heartbeat, watchdog sends Telegram SOS alerts with diagnostic context so operators can respond quickly.
+It also performs state analysis, root-cause diagnosis, remediation actions, and controlled restart operations.
 
 ## What This Repo Contains
 
