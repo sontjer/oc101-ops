@@ -28,6 +28,13 @@ When the OpenClaw Gateway crashes or loses heartbeat, watchdog sends Telegram SO
 - Alerting bot must be independent from business bots.
 - Prefer safe workflows for upgrades and config changes (backup first).
 
+## Prerequisite
+
+Before using this toolkit for OpenClaw maintenance automation, confirm at least one supported coding agent runtime is already installed and usable on your operator machine:
+- Claude Code
+- Codex
+- Opencode
+
 ## Quick Start
 
 1. Clone repository and enter it.

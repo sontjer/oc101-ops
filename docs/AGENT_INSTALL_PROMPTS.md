@@ -2,6 +2,9 @@
 
 Use these templates to let coding agents install and configure `oc101-ops` automatically.
 
+Prerequisite:
+- Confirm at least one runtime is installed and usable first: Claude Code, Codex, or Opencode.
+
 How to use:
 1. Copy one full template into the target agent.
 2. Replace placeholders in angle brackets (for example `<TARGET_HOST>`).

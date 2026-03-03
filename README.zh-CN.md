@@ -26,6 +26,13 @@ Agent 安装提示词模板： [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_
 - 告警 bot 与业务 bot 分离。
 - 升级和配置变更遵循“先备份再执行”。
 
+## 前提条件
+
+在使用本工具包进行 OpenClaw 自动化维护前，请先确认运维机已安装并可用以下编码代理运行环境中的至少一个：
+- Claude Code
+- Codex
+- Opencode
+
 ## 快速开始
 
 1. 克隆仓库并进入目录。
