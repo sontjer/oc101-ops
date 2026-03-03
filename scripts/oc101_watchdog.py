@@ -54,6 +54,8 @@ def env_bool(name: str, default: bool) -> bool:
 
 
 def load_config() -> Config:
+    script_dir = Path(__file__).resolve().parent
+    default_oc101 = str(script_dir / "oc101")
     return Config(
         bind_host=os.environ.get("OC101_WD_BIND_HOST", "0.0.0.0"),
         bind_port=env_int("OC101_WD_BIND_PORT", 18891),
@@ -68,8 +70,8 @@ def load_config() -> Config:
         max_auto_restart_failures=env_int("OC101_WD_MAX_AUTO_RESTART_FAILURES", 3),
         auto_restart_enabled=env_bool("OC101_WD_AUTO_RESTART_ENABLED", True),
         gateway_recheck_delay_seconds=env_int("OC101_WD_GATEWAY_RECHECK_DELAY_SECONDS", 45),
-        oc101_path=os.environ.get("OC101_WD_OC101_PATH", os.path.expanduser("~/.codex/skills/openclaw-101/scripts/oc101")),
-        monitored_host=os.environ.get("OC101_WD_MONITORED_HOST", "192.168.1.101"),
+        oc101_path=os.environ.get("OC101_WD_OC101_PATH", default_oc101),
+        monitored_host=os.environ.get("OC101_WD_MONITORED_HOST", "openclaw-host"),
         monitored_service=os.environ.get("OC101_WD_MONITORED_SERVICE", "openclaw-gateway"),
         telegram_bot_token=os.environ.get("OC101_WD_TELEGRAM_BOT_TOKEN", ""),
         telegram_chat_id=os.environ.get("OC101_WD_TELEGRAM_CHAT_ID", ""),
@@ -109,7 +111,6 @@ def now_ts() -> int:
 
 
 def ts_iso(ts: int) -> str:
-    # Use local timezone for all watchdog log lines (e.g. UTC+8 -> +08:00).
     return datetime.fromtimestamp(ts).astimezone().isoformat(timespec="seconds")
 
 

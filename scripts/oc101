@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-HOST="${OPENCLAW101_HOST:-192.168.1.101}"
+HOST="${OPENCLAW101_HOST:-}"
 USER="${OPENCLAW101_USER:-root}"
 IDENTITY_FILE="${OPENCLAW101_IDENTITY:-}"
 DEFAULT_IDENTITY="${OPENCLAW101_DEFAULT_IDENTITY:-$HOME/.ssh/oc101_ed25519}"
@@ -48,6 +48,8 @@ die() {
 timestamp() {
   date -u +"%Y%m%d-%H%M%S"
 }
+
+[[ -n "${HOST}" ]] || die "OPENCLAW101_HOST is required (no default host in this repository)"
 
 upgrade_review_stamp_path() {
   echo "$HOME/.codex/tmp/oc101-upgrade-review-${HOST}.stamp"
@@ -243,7 +245,7 @@ Models:
   oc101 models-probe
 
 env overrides:
-  OPENCLAW101_HOST (default 192.168.1.101)
+  OPENCLAW101_HOST (required; no default)
   OPENCLAW101_USER (default root)
   OPENCLAW101_PASS (optional; uses sshpass)
   OPENCLAW101_IDENTITY (optional; explicit ssh -i <path>, highest priority)
@@ -299,7 +301,7 @@ case "$sub" in
     ;;
   config-backup)
     include_secrets="0"
-    out_dir="$HOME/.codex/backups/openclaw-101"
+    out_dir="$HOME/.codex/backups/oc101-ops"
     while [[ $# -gt 0 ]]; do
       case "$1" in
         --include-secrets)
@@ -419,7 +421,7 @@ TXT
     fi
 
     echo "Creating pre-upgrade backup (without secrets)..."
-    backup_path="$(run_config_backup "0" "$HOME/.codex/backups/openclaw-101")"
+    backup_path="$(run_config_backup "0" "$HOME/.codex/backups/oc101-ops")"
     echo "Pre-upgrade backup saved: $backup_path"
 
     ssh_cmd "openclaw update ${update_args[*]}"
