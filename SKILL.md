@@ -22,6 +22,8 @@ This skill exposes `scripts/oc101` and watchdog helper scripts.
 2. `scripts/oc101 gateway-status`
 3. `scripts/oc101 doctor`
 4. `scripts/oc101 channels-probe`
+5. `scripts/oc101 sessions-cleanup` (preview)
+6. `scripts/oc101 sessions-cleanup --enforce --all-agents --json` (apply)
 
 ## Safety
 

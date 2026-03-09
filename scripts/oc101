@@ -230,6 +230,10 @@ Status & health:
   oc101 doctor [--fix]
   oc101 channels-probe
 
+Session maintenance:
+  oc101 sessions-cleanup [--dry-run] [--enforce] [--fix-missing] [--agent <id>] [--active-key <key>] [--json]
+  oc101 sessions-cleanup --all-agents [--dry-run|--enforce] [--fix-missing] [--json]
+
 Gateway management:
   oc101 gateway-install
   oc101 gateway-start
@@ -294,6 +298,14 @@ case "$sub" in
     ;;
   channels-probe)
     ssh_cmd 'openclaw channels status --probe'
+    ;;
+  sessions-cleanup)
+    # Default to all agents + dry-run when no explicit action is provided.
+    if [[ $# -eq 0 ]]; then
+      ssh_cmd 'openclaw sessions cleanup --all-agents --dry-run --json'
+      exit 0
+    fi
+    ssh_cmd "openclaw sessions cleanup $*"
     ;;
 
   gateway-install)
