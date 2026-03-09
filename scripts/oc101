@@ -3,6 +3,7 @@ set -euo pipefail
 
 HOST="${OPENCLAW101_HOST:-}"
 USER="${OPENCLAW101_USER:-root}"
+BACKUP_RETENTION_DAYS="${OPENCLAW101_BACKUP_RETENTION_DAYS:-15}"
 IDENTITY_FILE="${OPENCLAW101_IDENTITY:-}"
 DEFAULT_IDENTITY="${OPENCLAW101_DEFAULT_IDENTITY:-$HOME/.ssh/oc101_ed25519}"
 if [[ -z "${IDENTITY_FILE}" && -f "${DEFAULT_IDENTITY}" ]]; then
@@ -43,6 +44,10 @@ scp_cmd() {
 die() {
   echo "$*" >&2
   exit 2
+}
+
+validate_retention_days() {
+  [[ "$BACKUP_RETENTION_DAYS" =~ ^[0-9]+$ ]] || die "OPENCLAW101_BACKUP_RETENTION_DAYS must be a non-negative integer"
 }
 
 timestamp() {
@@ -201,6 +206,20 @@ run_config_backup() {
   printf '%s\n' "$local_path"
 }
 
+cleanup_old_backups() {
+  local out_dir="$1"
+  local removed=0
+  local f
+
+  while IFS= read -r f; do
+    [[ -n "$f" ]] || continue
+    rm -f "$f"
+    removed=$((removed + 1))
+  done < <(find "$out_dir" -maxdepth 1 -type f -name "openclaw-101-config-${HOST}-*.tgz" -mtime "+${BACKUP_RETENTION_DAYS}" -print 2>/dev/null || true)
+
+  echo "cleanup: removed ${removed} backup(s) older than ${BACKUP_RETENTION_DAYS} days from ${out_dir}"
+}
+
 usage() {
   cat >&2 <<'USAGE'
 usage: oc101 <command> [args]
@@ -250,12 +269,14 @@ env overrides:
   OPENCLAW101_PASS (optional; uses sshpass)
   OPENCLAW101_IDENTITY (optional; explicit ssh -i <path>, highest priority)
   OPENCLAW101_DEFAULT_IDENTITY (fallback key path when OPENCLAW101_IDENTITY is unset; default ~/.ssh/oc101_ed25519)
+  OPENCLAW101_BACKUP_RETENTION_DAYS (default 15; auto-clean local backups older than this)
   OPENCLAW101_UPGRADE_CONFIRM=YES (required when running oc101 upgrade --apply)
 USAGE
 }
 
 sub="${1:-}"
 shift || true
+validate_retention_days
 
 case "$sub" in
   status)
@@ -325,6 +346,7 @@ case "$sub" in
 
     local_path="$(run_config_backup "$include_secrets" "$out_dir")"
     echo "saved: $local_path"
+    cleanup_old_backups "$out_dir"
     ;;
   config-restore)
     [[ $# -eq 1 ]] || { usage; exit 2; }
@@ -421,8 +443,10 @@ TXT
     fi
 
     echo "Creating pre-upgrade backup (without secrets)..."
-    backup_path="$(run_config_backup "0" "$HOME/.codex/backups/oc101-ops")"
+    backup_out_dir="$HOME/.codex/backups/oc101-ops"
+    backup_path="$(run_config_backup "0" "$backup_out_dir")"
     echo "Pre-upgrade backup saved: $backup_path"
+    cleanup_old_backups "$backup_out_dir"
 
     ssh_cmd "openclaw update ${update_args[*]}"
     ;;
