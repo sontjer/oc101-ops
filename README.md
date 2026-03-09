@@ -6,7 +6,7 @@ Operational toolkit for coding agent managing OpenClaw over SSH.
 
 - Agent prompts (English): [docs/AGENT_INSTALL_PROMPTS.md](docs/AGENT_INSTALL_PROMPTS.md)
 - 中文 README: [README.zh-CN.md](README.zh-CN.md)
-- Agent prompts (Chinese): [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_INSTALL_PROMPTS.zh-CN.md)
+- Agent prompts (中文): [docs/AGENT_INSTALL_PROMPTS.zh-CN.md](docs/AGENT_INSTALL_PROMPTS.zh-CN.md)
 
 ✨ Tip: send the prompt to your coding agent and let it install for you.
 
