@@ -14,7 +14,7 @@
 
 ## 🚨 关键能力
 
-当 OpenClaw Gateway 崩溃或心跳中断时，watchdog 会通过 Telegram 发送包含诊断上下文的求救告警，便于运维快速介入。
+当 OpenClaw Gateway 崩溃或心跳中断时，watchdog 会在20分钟左右通过 Telegram 发送包含诊断上下文的求救告警，便于运维快速介入。
 同时也会对崩溃原因进行状态分析、诊断原因、修复、重启等操作。
 
 ## 🧰 仓库内容
