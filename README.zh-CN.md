@@ -79,6 +79,11 @@ scripts/oc101 doctor
 - `oc101 doctor [--fix|--repair]`
 - `oc101 channels-probe`
 
+会话维护：
+- `oc101 sessions-cleanup`（默认等价于 `--all-agents --dry-run --json`）
+- `oc101 sessions-cleanup --enforce --all-agents --json`
+- `oc101 sessions-cleanup --enforce --all-agents --fix-missing --json`
+
 网关管理：
 - `oc101 gateway-install`
 - `oc101 gateway-start`
@@ -117,6 +122,8 @@ scripts/oc101 doctor
 | “现在检查 OpenClaw 状态” | `scripts/oc101 status` |
 | “检查网关状态” | `scripts/oc101 gateway-status` |
 | “跑一遍 doctor 诊断” | `scripts/oc101 doctor` |
+| “预览 session 清理结果” | `scripts/oc101 sessions-cleanup` |
+| “对所有 agent 执行 session 清理” | `scripts/oc101 sessions-cleanup --enforce --all-agents --json` |
 | “探测渠道健康状态” | `scripts/oc101 channels-probe` |
 | “重启网关” | `scripts/oc101 gateway-restart` |
 | “先备份当前配置” | `scripts/oc101 config-backup` |
@@ -133,6 +140,8 @@ scripts/oc101 doctor
 - `OPENCLAW101_IDENTITY`（可选；显式指定私钥路径，等价于 `ssh -i`，优先级最高）
 - `OPENCLAW101_DEFAULT_IDENTITY`（回退私钥路径；仅当未设置 `OPENCLAW101_IDENTITY` 时生效，默认 `~/.ssh/oc101_ed25519`）
 - `OPENCLAW101_PASS`（可选，需安装 `sshpass`）
+- `OPENCLAW101_BACKUP_RETENTION_DAYS`（可选；默认 `15`，执行 `config-backup` 时会自动清理过期本地备份）
+- `OPENCLAW101_UPGRADE_CONFIRM`（执行 `oc101 upgrade --apply` 时必须设为 `YES`）
 
 📣 Watchdog 告警环境变量（Telegram）：
 - `OC101_WD_TELEGRAM_BOT_TOKEN`（启用 Telegram 告警时必填）

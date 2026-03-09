@@ -78,6 +78,11 @@ Status and health:
 - `oc101 doctor [--fix|--repair]`
 - `oc101 channels-probe`
 
+Session maintenance:
+- `oc101 sessions-cleanup` (defaults to `--all-agents --dry-run --json`)
+- `oc101 sessions-cleanup --enforce --all-agents --json`
+- `oc101 sessions-cleanup --enforce --all-agents --fix-missing --json`
+
 Gateway:
 - `oc101 gateway-install`
 - `oc101 gateway-start`
@@ -116,6 +121,8 @@ Channels and models:
 | "Check OpenClaw status now" | `scripts/oc101 status` |
 | "Check gateway status" | `scripts/oc101 gateway-status` |
 | "Run a doctor check" | `scripts/oc101 doctor` |
+| "Preview session cleanup" | `scripts/oc101 sessions-cleanup` |
+| "Apply session cleanup for all agents" | `scripts/oc101 sessions-cleanup --enforce --all-agents --json` |
 | "Probe channel health" | `scripts/oc101 channels-probe` |
 | "Restart gateway" | `scripts/oc101 gateway-restart` |
 | "Backup current config first" | `scripts/oc101 config-backup` |
@@ -132,6 +139,8 @@ Channels and models:
 - `OPENCLAW101_IDENTITY` (optional; explicit key path via `ssh -i`, takes precedence)
 - `OPENCLAW101_DEFAULT_IDENTITY` (fallback key path used only when `OPENCLAW101_IDENTITY` is unset; default `~/.ssh/oc101_ed25519`)
 - `OPENCLAW101_PASS` (optional, requires `sshpass`)
+- `OPENCLAW101_BACKUP_RETENTION_DAYS` (optional; default `15`, auto-prunes old local backups in `config-backup`)
+- `OPENCLAW101_UPGRADE_CONFIRM` (required value `YES` when running `oc101 upgrade --apply`)
 
 📣 Watchdog alert env (Telegram):
 - `OC101_WD_TELEGRAM_BOT_TOKEN` (required for Telegram alerts)
