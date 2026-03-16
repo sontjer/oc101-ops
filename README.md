@@ -25,6 +25,7 @@ It also performs state analysis, root-cause diagnosis, remediation actions, and 
 - `scripts/oc101_heartbeat_sender.sh`: heartbeat sender for OpenClaw host cron.
 - `scripts/oc101_watchdog_drill.sh`: timeout drill script with auto-restore.
 - `scripts/oc101_runtime_audit.sh`: one-shot runtime drift audit (repo vs skills vs remote host).
+- `skills/session-memory-promotion/`: reusable skill for promoting completed session findings into session memory, rules, skills, and long-term `MEMORY.md`.
 - `examples/*.env.example`: sanitized configuration templates.
 
 ## 🎯 Design Principles

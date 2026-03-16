@@ -25,6 +25,7 @@
 - `scripts/oc101_heartbeat_sender.sh`：部署在 OpenClaw 侧的心跳发送脚本（配合 cron）。
 - `scripts/oc101_watchdog_drill.sh`：超时演练脚本（自动恢复演练前配置）。
 - `scripts/oc101_runtime_audit.sh`：一键检查 repo/skills/线上运行态是否漂移。
+- `skills/session-memory-promotion/`：将已完成会话结论可复现地晋升到会话记忆、规则层、技能层与长期 `MEMORY.md` 的通用技能。
 - `examples/*.env.example`：脱敏后的配置模板。
 
 ## 🎯 设计原则
