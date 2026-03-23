@@ -160,12 +160,13 @@ Channels and models:
 ## 🛡️ Anti-Regression (Heartbeat)
 
 - In heartbeat env files, use `export` for all `OC101_HB_*` variables.
-- In cron, always source env with auto-export:
-
+- Heartbeat cron should be placed in **/etc/cron.d/** instead of user crontab to prevent skills-install operations from overwriting it.
+  - Template: `examples/oc101_cron_systemd.example` → deploy to `/etc/cron.d/oc101-heartbeat`, `chmod 644`
+  - If using traditional user crontab, re-confirm the entry after every repo update
+- In cron, always source env with auto-export (`set -a` / `set +a`):
 ```bash
 */15 * * * * set -a; . /root/.openclaw/ops/heartbeat_sender.env; set +a; /root/.openclaw/ops/heartbeat_sender.sh >> /root/.openclaw/ops/heartbeat_sender.log 2>&1
 ```
-
 - Do not rely on `. env && script` unless you are certain every required key is exported.
 - Keep runtime copies in sync after repo updates:
   - `scripts/oc101_heartbeat_sender.sh` -> `/root/.openclaw/ops/heartbeat_sender.sh`

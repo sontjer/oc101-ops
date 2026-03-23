@@ -1,0 +1,13 @@
+# Heartbeat cron — system-level (recommended over user crontab)
+# Skills-install operations may overwrite the user's crontab but will not
+# touch /etc/cron.d/, making this approach more resilient.
+#
+# Deploy:
+#   cp examples/oc101_cron_systemd.example /etc/cron.d/oc101-heartbeat
+#   chmod 644 /etc/cron.d/oc101-heartbeat
+#
+# Verify:
+#   systemctl status cron
+#   grep -r heartbeat /var/log/syslog
+#
+*/15 * * * * root . /root/.openclaw/ops/heartbeat_sender.env && /root/.openclaw/ops/heartbeat_sender.sh >> /root/.openclaw/ops/heartbeat_sender.log 2>&1

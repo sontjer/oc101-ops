@@ -161,9 +161,12 @@ scripts/oc101 doctor
 ## 🛡️ 防回归策略（Heartbeat）
 
 - 心跳 env 文件中的 `OC101_HB_*` 变量统一使用 `export`。
+- 心跳 cron 推荐放在 **/etc/cron.d/** 而非用户 crontab，可防止被 skills 安装操作覆盖。
+  - 模板：`examples/oc101_cron_systemd.example` → 部署至 `/etc/cron.d/oc101-heartbeat`，`chmod 644`
+  - 若用传统用户 crontab，repo 更新后需重新确认 cron 条目存在
 - cron 统一使用自动导出写法：
 
-```bash
+
 */15 * * * * set -a; . /root/.openclaw/ops/heartbeat_sender.env; set +a; /root/.openclaw/ops/heartbeat_sender.sh >> /root/.openclaw/ops/heartbeat_sender.log 2>&1
 ```
 
